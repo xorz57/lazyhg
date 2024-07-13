@@ -57,7 +57,7 @@ fn ui(frame: &mut Frame, hg_status_output: &str, hg_log_output: &str) {
     let chunks = Layout::default()
         .direction(Direction::Vertical)
         .margin(1)
-        .constraints([Constraint::Percentage(50), Constraint::Percentage(50)].as_ref())
+        .constraints([Constraint::Percentage(70), Constraint::Percentage(30)].as_ref())
         .split(frame.size());
 
     let status_block = Block::bordered().title("Status");
