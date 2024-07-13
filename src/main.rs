@@ -20,9 +20,10 @@ fn main() -> io::Result<()> {
     let mut should_quit = false;
     let hg_status_output = run_command("hg", &["status"]);
     let hg_log_output = run_command("hg", &["log"]);
+    let hg_branches_output = run_command("hg", &["branches"]);
 
     while !should_quit {
-        terminal.draw(|f| ui(f, &hg_status_output, &hg_log_output))?;
+        terminal.draw(|f| ui(f, &hg_status_output, &hg_log_output, &hg_branches_output))?;
         should_quit = handle_events()?;
     }
 
@@ -53,19 +54,29 @@ fn handle_events() -> io::Result<bool> {
     Ok(false)
 }
 
-fn ui(frame: &mut Frame, hg_status_output: &str, hg_log_output: &str) {
+fn ui(frame: &mut Frame, hg_status_output: &str, hg_log_output: &str, hg_branches_output: &str) {
     let chunks = Layout::default()
         .direction(Direction::Vertical)
         .margin(1)
-        .constraints([Constraint::Percentage(70), Constraint::Percentage(30)].as_ref())
+        .constraints(
+            [
+                Constraint::Percentage(70),
+                Constraint::Percentage(20),
+                Constraint::Percentage(10),
+            ]
+            .as_ref(),
+        )
         .split(frame.size());
 
     let status_block = Block::bordered().title("Status");
     let log_block = Block::bordered().title("Log");
+    let branches_block = Block::bordered().title("Branches");
 
     let status_paragraph = Paragraph::new(hg_status_output).block(status_block);
     let log_paragraph = Paragraph::new(hg_log_output).block(log_block);
+    let branches_paragraph = Paragraph::new(hg_branches_output).block(branches_block);
 
     frame.render_widget(status_paragraph, chunks[0]);
     frame.render_widget(log_paragraph, chunks[1]);
+    frame.render_widget(branches_paragraph, chunks[2]);
 }
