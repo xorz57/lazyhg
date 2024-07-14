@@ -35,11 +35,11 @@ fn main() -> io::Result<()> {
         terminal.draw(|f| {
             ui(
                 f,
+                &active_frame,
                 &hg_status_output,
                 &hg_branches_output,
                 &hg_bookmarks_output,
                 &hg_log_output,
-                &active_frame,
             )
         })?;
         should_quit = handle_events(&mut active_frame)?;
@@ -83,11 +83,11 @@ fn handle_events(active_frame: &mut ActiveFrame) -> io::Result<bool> {
 
 fn ui(
     frame: &mut Frame,
+    active_frame: &ActiveFrame,
     hg_status_output: &str,
     hg_branches_output: &str,
     hg_bookmarks_output: &str,
     hg_log_output: &str,
-    active_frame: &ActiveFrame,
 ) {
     let chunks = Layout::default()
         .direction(Direction::Horizontal)
