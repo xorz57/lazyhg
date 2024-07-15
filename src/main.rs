@@ -48,11 +48,8 @@ fn main() -> io::Result<()> {
         .expect("Failed to execute command");
 
     let hg_status_output = String::from_utf8_lossy(&hg_status_output.stdout).to_string();
-
     let hg_branches_output = String::from_utf8_lossy(&hg_branches_output.stdout).to_string();
-
     let hg_bookmarks_output = String::from_utf8_lossy(&hg_bookmarks_output.stdout).to_string();
-
     let hg_log_output = String::from_utf8_lossy(&hg_log_output.stdout).to_string();
 
     while !should_quit {
