@@ -92,7 +92,7 @@ fn ui(
     let chunks = Layout::default()
         .direction(Direction::Horizontal)
         .margin(1)
-        .constraints([Constraint::Percentage(50), Constraint::Percentage(50)].as_ref())
+        .constraints([Constraint::Percentage(40), Constraint::Percentage(60)].as_ref())
         .split(frame.size());
 
     let left_chunks = Layout::default()
