@@ -4,10 +4,10 @@
 
 ## Keyboard Shortcuts
 
-| Frame     | Keyboard Shortcut |
-| --------- | ----------------- |
-| Quit      | `q`               |
-| Status    | `s`               |
-| Branches  | `b`               |
-| Bookmarks | `b`               |
-| Log       | `l`               |
+| Keyboard Shortcut | Description                 |
+| ----------------- | --------------------------- |
+| `q`               | Quits the application       |
+| `s`               | Selects the status frame    |
+| `b`               | Selects the branches frame  |
+| `b`               | Selects the bookmarks frame |
+| `l`               | Selects the log frame       |
