@@ -1,23 +1,21 @@
 use std::io::{self, stdout};
-use std::process::Command;
 
 use ratatui::{
+    backend::CrosstermBackend,
     crossterm::{
-        event::{self, Event, KeyCode},
         terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
         ExecutableCommand,
     },
-    layout::{Constraint, Direction, Layout},
-    prelude::*,
-    widgets::*,
+    Terminal,
 };
 
-enum ActiveFrame {
-    Status,
-    Branches,
-    Bookmarks,
-    Log,
-}
+mod commands;
+mod events;
+mod ui;
+
+use commands::run_command;
+use events::handle_events;
+use ui::{draw_ui, ActiveFrame};
 
 fn main() -> io::Result<()> {
     enable_raw_mode()?;
@@ -33,7 +31,7 @@ fn main() -> io::Result<()> {
 
     while !should_quit {
         terminal.draw(|f| {
-            ui(
+            draw_ui(
                 f,
                 &active_frame,
                 &hg_status_output,
@@ -48,97 +46,4 @@ fn main() -> io::Result<()> {
     disable_raw_mode()?;
     stdout().execute(LeaveAlternateScreen)?;
     Ok(())
-}
-
-fn run_command(command: &str, args: &[&str]) -> String {
-    let output = Command::new(command)
-        .args(args)
-        .output()
-        .expect("Failed to execute command");
-
-    String::from_utf8_lossy(&output.stdout).to_string()
-}
-
-fn handle_events(active_frame: &mut ActiveFrame) -> io::Result<bool> {
-    if event::poll(std::time::Duration::from_millis(50))? {
-        if let Event::Key(key) = event::read()? {
-            if key.kind == event::KeyEventKind::Press {
-                match key.code {
-                    KeyCode::Char('q') => return Ok(true),
-                    KeyCode::Char('s') => *active_frame = ActiveFrame::Status,
-                    KeyCode::Char('b') => {
-                        *active_frame = match *active_frame {
-                            ActiveFrame::Branches => ActiveFrame::Bookmarks,
-                            _ => ActiveFrame::Branches,
-                        }
-                    }
-                    KeyCode::Char('l') => *active_frame = ActiveFrame::Log,
-                    _ => {}
-                }
-            }
-        }
-    }
-    Ok(false)
-}
-
-fn ui(
-    frame: &mut Frame,
-    active_frame: &ActiveFrame,
-    hg_status_output: &str,
-    hg_branches_output: &str,
-    hg_bookmarks_output: &str,
-    hg_log_output: &str,
-) {
-    let chunks = Layout::default()
-        .direction(Direction::Horizontal)
-        .margin(1)
-        .constraints([Constraint::Percentage(40), Constraint::Percentage(60)].as_ref())
-        .split(frame.size());
-
-    let left_chunks = Layout::default()
-        .direction(Direction::Vertical)
-        .constraints(
-            [
-                Constraint::Percentage(60),
-                Constraint::Percentage(20),
-                Constraint::Percentage(20),
-            ]
-            .as_ref(),
-        )
-        .split(chunks[0]);
-
-    let status_block = match active_frame {
-        ActiveFrame::Status => Block::bordered()
-            .title("Status")
-            .style(Style::default().fg(Color::Yellow)),
-        _ => Block::bordered().title("Status"),
-    };
-    let branches_block = match active_frame {
-        ActiveFrame::Branches => Block::bordered()
-            .title("Branches")
-            .style(Style::default().fg(Color::Yellow)),
-        _ => Block::bordered().title("Branches"),
-    };
-    let bookmarks_block = match active_frame {
-        ActiveFrame::Bookmarks => Block::bordered()
-            .title("Bookmarks")
-            .style(Style::default().fg(Color::Yellow)),
-        _ => Block::bordered().title("Bookmarks"),
-    };
-    let log_block = match active_frame {
-        ActiveFrame::Log => Block::bordered()
-            .title("Log")
-            .style(Style::default().fg(Color::Yellow)),
-        _ => Block::bordered().title("Log"),
-    };
-
-    let status_paragraph = Paragraph::new(hg_status_output).block(status_block);
-    let branches_paragraph = Paragraph::new(hg_branches_output).block(branches_block);
-    let bookmarks_paragraph = Paragraph::new(hg_bookmarks_output).block(bookmarks_block);
-    let log_paragraph = Paragraph::new(hg_log_output).block(log_block);
-
-    frame.render_widget(status_paragraph, left_chunks[0]);
-    frame.render_widget(branches_paragraph, left_chunks[1]);
-    frame.render_widget(bookmarks_paragraph, left_chunks[2]);
-    frame.render_widget(log_paragraph, chunks[1]);
 }
